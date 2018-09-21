@@ -1,0 +1,130 @@
+<fuente> ::= [<bloque-funciones>] <principal>
+
+<bloque-funciones> ::= {<funcion>}*
+
+
+<funcion> ::= <tipo-dato> <id> '(' [<argumentos>] ')' '{'
+							[<declaraciones>] [<operaciones>] <regresa> '}'
+
+<principal> ::= "principal" '(' ')' '{' <declaraciones> <operaciones> '}'
+
+<regresa> ::= "regresa"
+
+
+
+<tipo-dato> ::= "entero" | "real" | "logico"
+
+<id> ::= <palabra>{{<palabra>}*{numero}*}*
+<palabra> ::= {<letra>}*
+<letra> ::= 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' |
+						'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' |
+						'w' | 'x' | 'y' | 'z
+<numero> ::= {<digito>}* ['.' {<digito>}*]
+<digito> ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+
+<argumentos> ::= <primer-argumento> [argumento-adicional]
+<primer-argumento> ::= <tipo-dato> <id>
+<argumento-adicional> ::= ',' <tipo-dato> <id>
+
+<declaraciones> ::= {<declaracion>}*
+<declaracion> ::= <tipo-dato> <id> ';'
+
+<operaciones> ::= {<operacion>}*
+<operacion> ::= <id> '=' <expresion> ';'
+<expresion> ::= <aritmetica> | <logica> | <relacional> | <asignacion> |
+							'!'<id> | '!'<aritmetica> | '!'<logica> | '!'<relacional>
+
+<asignacion> ::= <id> | <llamada-funcion>
+<llamada-funcion> ::= <id>  '('  ')'
+
+<aritmetica> ::= <id><op-arit><id> |
+								<id><op-arit><llamada-funcion> | <llamada-funcion><op-arit><id> | <llamada-funcion><op-arit><llamada-funcion> |
+								<id><op-arit><numero> | <numero><op-arit><id> | <numero><op-arit><numero> |
+								<id><op-arit><expresion> | <expresion><op-arit><id> | <expresion><op-arit><expresion> |
+								<id><op-arit><logica> | <logica><op-arit><id> | <logica><op-arit><logica> |
+								<id><op-arit><relacional> | <relacional><op-arit><id> | <relacional><op-arit><relacional> |
+								<llamada-funcion><op-arit><llamada-funcion> |
+								<llamada-funcion><op-arit><numero> | <numero><op-arit><llamada-funcion> | <numero><op-arit><numero> |
+								<llamada-funcion><op-arit><expresion> | <expresion><op-arit><llamada-funcion> | <expresion><op-arit><expresion> |
+								<llamada-funcion><op-arit><logica> | <logica><op-arit><llamada-funcion> | <logica><op-arit><logica> |
+								<llamada-funcion><op-arit><relacional> | <relacional><op-arit><llamada-funcion> | <relacional><op-arit><> |
+								<numero><op-arit><numero> |
+								<numero><op-arit><expresion> | <expresion><op-arit><numero> | <expresion><op-arit><expresion> |
+								<numero><op-arit><logica> | <logica><op-arit><numero> | <logica><op-arit><logica> |
+								<numero><op-arit><relacional> | <relacional><op-arit><numero> | <relacional><op-arit><relacional> |
+								<expresion><op-arit><expresion> |
+								<expresion><op-arit><logica> | <logica><op-arit><expresion> | <logica><op-arit><logica> |
+								<expresion><op-arit><relacional> | <relacional><op-arit><expresion> | <relacional><op-arit><relacional> |
+								<logica><op-arit><logica> |
+								<logica><op-arit><relacional> | <relacional><op-arit><logica> | <relacional><op-arit><relacional> |
+								<relacional><op-arit><relacional>
+<op-arit> ::= '+' | '-' | '*' | '/' | '^'
+
+<logica> ::= <id><op-logi><id> |
+						<id><op-logi><llamada-funcion> | <llamada-funcion><op-logi><id> | <llamada-funcion><op-logi><llamada-funcion> |
+						<id><op-logi><numero> | <numero><op-logi><id> | <numero><op-logi><numero> |
+						<id><op-logi><expresion> | <expresion><op-logi><id> | <expresion><op-logi><expresion> |
+						<id><op-logi><logica> | <logica><op-logi><id> | <logica><op-logi><logica> |
+						<id><op-logi><relacional> | <relacional><op-logi><id> | <relacional><op-logi><relacional> |
+						<llamada-funcion><op-logi><llamada-funcion> |
+						<llamada-funcion><op-logi><numero> | <numero><op-logi><llamada-funcion> | <numero><op-logi><numero> |
+						<llamada-funcion><op-logi><expresion> | <expresion><op-logi><llamada-funcion> | <expresion><op-logi><expresion> |
+						<llamada-funcion><op-logi><logica> | <logica><op-logi><llamada-funcion> | <logica><op-logi><logica> |
+						<llamada-funcion><op-logi><relacional> | <relacional><op-logi><llamada-funcion> | <relacional><op-logi><> |
+						<numero><op-logi><numero> |
+						<numero><op-logi><expresion> | <expresion><op-logi><numero> | <expresion><op-logi><expresion> |
+						<numero><op-logi><logica> | <logica><op-logi><numero> | <logica><op-logi><logica> |
+						<numero><op-logi><relacional> | <relacional><op-logi><numero> | <relacional><op-logi><relacional> |
+						<expresion><op-logi><expresion> |
+						<expresion><op-logi><logica> | <logica><op-logi><expresion> | <logica><op-logi><logica> |
+						<expresion><op-logi><relacional> | <relacional><op-logi><expresion> | <relacional><op-logi><relacional> |
+						<logica><op-logi><logica> |
+						<logica><op-logi><relacional> | <relacional><op-logi><logica> | <relacional><op-logi><relacional> |
+						<relacional><op-logi><relacional>
+<op-logi> ::= '&' | '|'
+
+<relacional> ::= <id><op-rela><id> |
+						<id><op-rela><llamada-funcion> | <llamada-funcion><op-rela><id> | <llamada-funcion><op-rela><llamada-funcion> |
+						<id><op-rela><numero> | <numero><op-rela><id> | <numero><op-rela><numero> |
+						<id><op-rela><expresion> | <expresion><op-rela><id> | <expresion><op-rela><expresion> |
+						<id><op-rela><logica> | <logica><op-rela><id> | <logica><op-rela><logica> |
+						<id><op-rela><relacional> | <relacional><op-rela><id> | <relacional><op-rela><relacional> |
+						<llamada-funcion><op-rela><llamada-funcion> |
+						<llamada-funcion><op-rela><numero> | <numero><op-rela><llamada-funcion> | <numero><op-rela><numero> |
+						<llamada-funcion><op-rela><expresion> | <expresion><op-rela><llamada-funcion> | <expresion><op-rela><expresion> |
+						<llamada-funcion><op-rela><logica> | <logica><op-rela><llamada-funcion> | <logica><op-rela><logica> |
+						<llamada-funcion><op-rela><relacional> | <relacional><op-rela><llamada-funcion> | <relacional><op-rela><> |
+						<numero><op-rela><numero> |
+						<numero><op-rela><expresion> | <expresion><op-rela><numero> | <expresion><op-rela><expresion> |
+						<numero><op-rela><logica> | <logica><op-rela><numero> | <logica><op-rela><logica> |
+						<numero><op-rela><relacional> | <relacional><op-rela><numero> | <relacional><op-rela><relacional> |
+						<expresion><op-rela><expresion> |
+						<expresion><op-rela><logica> | <logica><op-rela><expresion> | <logica><op-rela><logica> |
+						<expresion><op-rela><relacional> | <relacional><op-rela><expresion> | <relacional><op-rela><relacional> |
+						<logica><op-rela><logica> |
+						<logica><op-rela><relacional> | <relacional><op-rela><logica> | <relacional><op-rela><relacional> |
+						<relacional><op-rela><relacional>
+<op-rela> ::= '<' | '>' | '=='
+
+<asignacion> ::= <id><op-asig><id> |
+						<id><op-asig><llamada-funcion> | <llamada-funcion><op-asig><id> | <llamada-funcion><op-asig><llamada-funcion> |
+						<id><op-asig><numero> | <numero><op-asig><id> | <numero><op-asig><numero> |
+						<id><op-asig><expresion> | <expresion><op-asig><id> | <expresion><op-asig><expresion> |
+						<id><op-asig><logica> | <logica><op-asig><id> | <logica><op-asig><logica> |
+						<id><op-asig><relacional> | <relacional><op-asig><id> | <relacional><op-asig><relacional> |
+						<llamada-funcion><op-asig><llamada-funcion> |
+						<llamada-funcion><op-asig><numero> | <numero><op-asig><llamada-funcion> | <numero><op-asig><numero> |
+						<llamada-funcion><op-asig><expresion> | <expresion><op-asig><llamada-funcion> | <expresion><op-asig><expresion> |
+						<llamada-funcion><op-asig><logica> | <logica><op-asig><llamada-funcion> | <logica><op-asig><logica> |
+						<llamada-funcion><op-asig><relacional> | <relacional><op-asig><llamada-funcion> | <relacional><op-asig><> |
+						<numero><op-asig><numero> |
+						<numero><op-asig><expresion> | <expresion><op-asig><numero> | <expresion><op-asig><expresion> |
+						<numero><op-asig><logica> | <logica><op-asig><numero> | <logica><op-asig><logica> |
+						<numero><op-asig><relacional> | <relacional><op-asig><numero> | <relacional><op-asig><relacional> |
+						<expresion><op-asig><expresion> |
+						<expresion><op-asig><logica> | <logica><op-asig><expresion> | <logica><op-asig><logica> |
+						<expresion><op-asig><relacional> | <relacional><op-asig><expresion> | <relacional><op-asig><relacional> |
+						<logica><op-asig><logica> |
+						<logica><op-asig><relacional> | <relacional><op-asig><logica> | <relacional><op-asig><relacional> |
+						<relacional><op-asig><relacional>
+<op-asig> ::= '='
