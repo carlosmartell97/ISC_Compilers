@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <map>
+#include <numeric>
 
 #define BLACK_TEXT	"\e[30;1m"
 #define RED_TEXT	"\e[31;1m"
@@ -25,6 +27,20 @@ public:
     this->n_linea=n_linea; this->n_caracter=n_caracter;
     this->cadena=cadena; this->tipo=tipo;
     this->valor=""; this->identificador_funcion_o_variable="";
+  }
+};
+
+class Estado {
+public:
+  string name;
+  map<string, string> tokens_expected_next;
+  string COLOR;
+  string output_3_direcciones;
+  Estado(string name, const string COLOR, string output_3_direcciones, const initializer_list< pair<string,string> > &tokens_expected_next){
+    this->name = name;
+    this->COLOR = COLOR;
+    this->output_3_direcciones = output_3_direcciones;
+    for(pair<string,string> next : tokens_expected_next) this->tokens_expected_next[next.first]=next.second;
   }
 };
 

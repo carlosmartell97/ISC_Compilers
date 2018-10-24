@@ -12,7 +12,7 @@
 using namespace std;
 
 ofstream codigo_de_3_direcciones;
-bool ignore = false;
+bool ignore_comments = false;
 
 string char_to_string(char c){
   stringstream ss;
@@ -59,29 +59,33 @@ bool is_identificador(string cadena){
   return true;
 }
 
-void write_to_txt(string output, string COLOR){
-  if(ignore){
-    printf(BLACK_TEXT);
-    printf("word %s ignored\n", output.c_str());
-    printf(DEFAULT);
-    return;
+void write_to_txt(string replacement, string cadena, string tipo, string COLOR){
+  string output;
+  if(replacement == ""){
+    output = tipo;
   }
-  // printf("%s", COLOR.c_str());
-  // printf("%s\n", output.c_str());
-  // printf(DEFAULT);
-  // codigo_de_3_direcciones << output << endl;
+  else if(replacement == "cadena"){
+    output = cadena;
+  } else {
+    output = replacement;
+  }
+  printf("%s", COLOR.c_str());
+  printf("%s ", output.c_str());
+  printf(DEFAULT);
+  codigo_de_3_direcciones << output << " " << flush;
 }
 
-void lexical_error_found(int n_linea, int n_caracter, string cadena){
+void grammar_error_found(int n_linea, int n_caracter, string cadena, string expected){
   printf(RED_TEXT);
-  printf("ERROR. No pattern found for \"%s\" at line %d, character %d\n",
+  printf("ERROR. \"%s\" was expected to be a %s at line %d, character %d\n",
     cadena.c_str(),
+    expected.c_str(),
     n_linea,
     n_caracter
   );
   printf(DEFAULT);
   codigo_de_3_direcciones.close();
-  exit(EXIT_SUCCESS);
+  exit(EXIT_FAILURE);
 }
 
 int main(int argc, char* argv[]){
@@ -96,8 +100,9 @@ int main(int argc, char* argv[]){
   string line;
 
   string separadores = "(){};,&<>+-*/^|! \t\0";
-  vector<string> palabras_reservadas = {"int", "bool", "while", "if", "return",
-                                        "true", "false", "main", "read", "write"};
+  vector<string> palabras_reservadas = { "while", "if", "return"};
+  vector<string> funciones_reservadas = {"read", "write"};
+  vector<string> type_specifiers = {"int", "bool", "true", "false", "void"};
   string numeros = "0123456789";
   char previous_separador = ' ';
 
@@ -124,7 +129,7 @@ int main(int argc, char* argv[]){
       if(found!=string::npos || read==' ' || read=='\t'){    // es un separador
         if(read_word!=""){    // había algo antes
           // printf("new token: .%s.\n", read_word.c_str());
-          if(ignore){
+          if(ignore_comments){
             printf(BLACK_TEXT);
             printf("word %s ignored\n", read_word.c_str());
             printf(DEFAULT);
@@ -132,50 +137,61 @@ int main(int argc, char* argv[]){
           else if(is_in(read_word, palabras_reservadas)){    // antes del separador, hay una palabra reservada
             tabla_de_simbolos.push_back(
               new Simbolo(n_linea, n_caracter, read_word, "palabra reservada")
-            ); write_to_txt("palabra reservada: "+read_word, GREEN_TEXT);
+            );
+          }
+          else if(is_in(read_word, funciones_reservadas)){    // antes del separador, hay una palabra reservada
+            tabla_de_simbolos.push_back(
+              new Simbolo(n_linea, n_caracter, read_word, "funcion reservada")
+            );
+          }
+          else if(is_in(read_word, type_specifiers)){    // antes del separador, hay una palabra reservada
+            tabla_de_simbolos.push_back(
+              new Simbolo(n_linea, n_caracter, read_word, "type specifier")
+            );
           }
           else if(is_identificador(read_word)){
             // printf("%s is identificador.\n", read_word.c_str());
             tabla_de_simbolos.push_back(
                 new Simbolo(n_linea, n_caracter, read_word, "identificador")
-              ); write_to_txt("identificador: "+read_word, YELLOW_TEXT);
+              );
           }
           else if(is_number(read_word)){
             // printf("%s is number.\n", read_word.c_str());
             tabla_de_simbolos.push_back(
               new Simbolo(n_linea, n_caracter, read_word, "numero")
-            ); write_to_txt("numero: "+read_word, DEFAULT);
+            );
           }
           else if(read_word == "="){
             tabla_de_simbolos.push_back(
               new Simbolo(n_linea, n_caracter, read_word, "separador "+read_word)
-            ); write_to_txt("separador: "+read_word, BLUE_TEXT);
+            );
           }
           else if(read_word == "=="){
             tabla_de_simbolos.push_back(
               new Simbolo(n_linea, n_caracter, read_word, "separador "+read_word)
-            ); write_to_txt("separador: "+read_word, BLUE_TEXT);
+            );
           }
           else {
-            write_to_txt("error: "+read_word, RED_TEXT);
+            printf(RED_TEXT); printf("error: %s\n", read_word.c_str());
+            printf(DEFAULT);
           }
         }
         read_word = "";
         if(read!=' ' && read!='\0' && read!='\t'){
           tabla_de_simbolos.push_back(
-            new Simbolo(n_linea, n_caracter, read_string, "separador")
-          ); write_to_txt("separador: "+read_string, BLUE_TEXT);
+            new Simbolo(n_linea, n_caracter, read_string, "separador "+read_string)
+          );
         }
         else {
           printf("character .%c. ignored.\n", read);
         }
         if(read=='*' && previous_separador=='/'){
-          ignore = true;
+          ignore_comments = true;
           tabla_de_simbolos.pop_back();
           tabla_de_simbolos.pop_back();
         }
         if(read=='/' && previous_separador=='*'){
-          ignore = false;
+          ignore_comments = false;
           tabla_de_simbolos.pop_back();
           tabla_de_simbolos.pop_back();
         }
@@ -189,13 +205,12 @@ int main(int argc, char* argv[]){
   }
   printf("\nEOF\n");
   printf("cerrando archivo de entrada\n");
-  codigo_de_3_direcciones.close();
   for(uint i=0; i<tabla_de_simbolos.size(); i++){
     Simbolo* symb = tabla_de_simbolos[i];
-    if(symb->tipo=="palabra reservada") printf(GREEN_TEXT);
+    if(symb->tipo=="palabra reservada" || symb->tipo=="funcion reservada" || symb->tipo=="type specifier") printf(GREEN_TEXT);
     else if(symb->tipo=="identificador") printf(YELLOW_TEXT);
     else if(symb->tipo=="numero") printf(DEFAULT);
-    else if(symb->tipo=="separador" || symb->tipo=="separador =" || symb->tipo=="separador ==") printf(BLUE_TEXT);
+    else if(symb->tipo.substr(0,9)=="separador") printf(BLUE_TEXT);
     else printf(RED_TEXT);
     printf("symbol %s : %s, line:%d character:%d\n",
       symb->cadena.c_str(),
@@ -204,6 +219,82 @@ int main(int argc, char* argv[]){
       symb->n_caracter
     );
     printf(DEFAULT);
+  }
+  string estado = "START";
+  uint pos = 0;
+  printf("\nnow processing symbols...\n");
+  map<string, Estado*> estados;
+  estados["START"] = new Estado("START", GREEN_TEXT, "entry", {make_pair("type specifier","declaracion")});
+  estados["declaracion"] = new Estado("declaracion", DEFAULT, "cadena", {make_pair("identificador","tipo declaracion")});
+
+  estados["tipo declaracion"] = new Estado("tipo declaracion", " ", BLUE_TEXT, {make_pair("separador ;","START"), make_pair("separador [", "array tamano"), make_pair("separador (","funcion parametros")});
+  estados["array tamano"] = new Estado("array tamano", BLUE_TEXT, "", {make_pair("numero","array cerrar tamanano")});
+  estados["array cerrar tamano"] = new Estado("array cerrar tamano", BLUE_TEXT, "", {make_pair("separador ]","array declaracion")});
+  estados["array declaracion"] = new Estado("array declaracion", BLUE_TEXT, "", {make_pair("separador ;","START")});
+
+  estados["funcion parametros"] = new Estado("funcion parametros", YELLOW_TEXT, " ", {make_pair("separador )","compound-stmt"), make_pair("type specifier","param identificador")});
+  estados["param identificador"] = new Estado("param identificador", YELLOW_TEXT, " ", {make_pair("identificador","params-list")});
+  estados["params-list"] = new Estado("params-list", YELLOW_TEXT, " ", {make_pair("separador )","compound-stmt"), make_pair("separador ,","param secundario")});
+  estados["param secundario"] = new Estado("params secundarios", YELLOW_TEXT, " ", {make_pair("type specifier","params identificador")});
+  Simbolo* symb = tabla_de_simbolos[pos];
+  Estado* estado_actual = estados["START"];
+  while(estado_actual->name != "END"){
+    symb = tabla_de_simbolos[pos];
+    printf("estado:%s, cadena:%s, symbol:%s\n", estado_actual->name.c_str(), symb->cadena.c_str(), symb->tipo.c_str());
+    if(estado_actual->tokens_expected_next.find(symb->tipo) != estado_actual->tokens_expected_next.end()){
+      if(pos >= tabla_de_simbolos.size()-1){
+        // string s;
+        // s= = accumulate(estado_actual->tokens_expected_next.begin(), estado_actual->tokens_expected_next.end(), s);
+        // grammar_error_found(symb->n_linea, symb->n_caracter, "EOF", s);
+        grammar_error_found(symb->n_linea, symb->n_caracter, "EOF", "{more stuff}");
+      }
+      else if(estados.find(estado_actual->tokens_expected_next[symb->tipo]) == estados.end()){
+        grammar_error_found(symb->n_linea, symb->n_caracter, estado_actual->tokens_expected_next[symb->tipo], "*Estado in map*");
+      }
+      else {
+        write_to_txt(estado_actual->output_3_direcciones, symb->cadena, symb->tipo, estado_actual->COLOR);
+        estado_actual = estados[estado_actual->tokens_expected_next[symb->tipo]];
+        pos++;
+      }
+    } else {
+      // string s;
+      // s = accumulate(estado_actual->tokens_expected_next.begin(), estado_actual->tokens_expected_next.end(), s);
+      // grammar_error_found(symb->n_linea, symb->n_caracter, symb->cadena, s);
+      grammar_error_found(symb->n_linea, symb->n_caracter, symb->cadena, "{something}");
+    }
+
+    // if(estado=="START"){
+    //   if(symb->tipo=="type specifier"){
+    //     write_to_txt("entry", GREEN_TEXT);
+    //     if(pos >= tabla_de_simbolos.size()-1){
+    //       grammar_error_found(symb->n_linea, symb->n_caracter, symb->cadena, "type specifier");
+    //     }
+    //     else {
+    //       estado = "identificador funcion";
+    //       pos++;
+    //     }
+    //   } else {
+    //     grammar_error_found(symb->n_linea, symb->n_caracter, symb->cadena, "type specifier");
+    //   }
+    // }
+    // else if(estado == "identificador funcion"){
+    //   if(symb->tipo=="identificador" || symb->cadena=="main"){
+    //     write_to_txt(symb->cadena, DEFAULT);
+    //     if(pos >= tabla_de_simbolos.size()-1){
+    //       grammar_error_found(symb->n_linea, symb->n_caracter, symb->cadena, "identificador");
+    //     }
+    //     else {
+    //       estado = "tipo declaracion";
+    //       pos++;
+    //     }
+    //   }
+    //   else {
+    //     grammar_error_found(symb->n_linea, symb->n_caracter, symb->cadena, "identificador");
+    //   }
+    // }
+    // else if(estado == "tipo declaracion"){
+    //   estado = "END"; printf("\n"); codigo_de_3_direcciones.close();
+    // }
   }
   return 0;
 }
