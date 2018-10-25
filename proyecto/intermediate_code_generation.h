@@ -9,6 +9,7 @@
 #include <sstream>
 #include <map>
 #include <numeric>
+#include <boost/format.hpp>
 
 #define BLACK_TEXT	"\e[30;1m"
 #define RED_TEXT	"\e[31;1m"
